@@ -1,0 +1,106 @@
+{
+	"name": "para-switch",
+	"displayName": "Para Switch",
+	"description": "Key-Value storeage for quick replace",
+	"version": "0.0.1",
+	"publisher": "HackerFrog",
+	"engines": {
+		"vscode": "^1.52.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"*"
+	],
+	"keywords": [
+		"replace",
+		"key-value",
+		"parameterize"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "para-switch",
+					"title": "Para Switch",
+					"icon": "resources/para-switch.svg"
+				}
+			]
+		},
+		"views": {
+			"para-switch": [
+				{
+					"type": "webview",
+					"id": "para-switch.kv-explorer",
+					"name": "Key Value Explorer"
+				},
+				{
+					"type": "webview",
+					"id": "para-switch.scanner",
+					"name": "Scanner"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "para-switch.addParam",
+				"category": "Para Switch",
+				"title": "New Key-Value",
+				"icon": "$(add)"
+			},
+			{
+				"command": "para-switch.replaceAll",
+				"category": "Para Switch",
+				"title": "Replace All",
+				"icon": "$(replace-all)"
+			},
+			{
+				"command": "para-switch.clearAll",
+				"category": "Para Switch",
+				"title": "Clear All",
+				"icon": "$(clear-all)"
+			}
+		],
+		"menus": {
+			"view/title": [
+				{
+					"command": "para-switch.addParam",
+					"group": "navigation",
+					"when": "view == para-switch.kv-explorer"
+				},
+				{
+					"command": "para-switch.replaceAll",
+					"group": "navigation",
+					"when": "view == para-switch.kv-explorer"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.52.0",
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.0.4",
+		"@types/node": "^12.11.7",
+		"eslint": "^7.15.0",
+		"@typescript-eslint/eslint-plugin": "^4.9.0",
+		"@typescript-eslint/parser": "^4.9.0",
+		"glob": "^7.1.6",
+		"mocha": "^8.1.3",
+		"typescript": "^4.1.2",
+		"vscode-test": "^1.4.1"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/hackerfrog/Para-Switch"
+	}
+}

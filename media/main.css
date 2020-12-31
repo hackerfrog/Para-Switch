@@ -1,0 +1,49 @@
+body {
+	background-color: transparent;
+}
+a {
+	text-decoration: none;
+}
+.header {
+	display: flex;
+	flex-wrap: nowrap;
+	padding: 2px;
+}
+.header > div {
+	width: 100%;
+	text-transform: uppercase;
+	font-weight: 700;
+	font-size: 11px;
+}
+ul.param-list {
+}
+li.param-entry {
+	display: flex;
+	flex-wrap: nowrap;
+	margin-bottom: 1px;
+}
+li.param-entry > input.inputK,
+li.param-entry > input.inputV {
+	width: 100%;
+}
+li.param-entry > input:last-child {
+	margin-left: 1px;
+}
+li.param-entry > button {
+	background-color: transparent;
+	width: 20px;
+	font-weight: normal;
+}
+button.replaceBtn:hover {
+	background-color: rgba(255, 255, 255, 0.25);
+}
+button.clearBtn:hover {
+	background-color: rgb(220, 60, 60, 0.45);
+}
+.credit-footer {
+	width: 100%;
+	text-align: center;
+	font-size: 11px;
+	padding: 4px 0;
+	background-color: rgba(0, 0, 0, 0.1);
+}
