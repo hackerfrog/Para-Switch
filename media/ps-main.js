@@ -6,6 +6,17 @@
 
     updateParamList(params);
 
+    document.querySelector('.replaceByGroup').addEventListener('click', () => {
+        inputG = document.querySelector('#groupValue');
+        let groupReplaceParams = []
+        for (const param of params) {
+            if (inputG.value == param.group) {
+                groupReplaceParams.push(param)
+            }
+        }
+        vscode.postMessage({ type: 'replaceAllAction', value: groupReplaceParams });
+    });
+
     window.addEventListener('message', event => {
         const message = event.data;
         switch (message.type) {
@@ -30,6 +41,21 @@
             const li = document.createElement('li');
             li.className = 'param-entry'
 
+            const inputG = document.createElement('input');
+            inputG.className = 'inputG';
+            inputG.type = 'text';
+            inputG.value = param.group
+            inputG.addEventListener('change', (e) => {
+                const value = e.target.value;
+                if(!value) {
+                    param.group = '';
+                } else {
+                    param.group = value;
+                }
+                updateParamList(params)
+            });
+            li.appendChild(inputG);
+
             const inputK = document.createElement('input');
             inputK.className = 'inputK';
             inputK.type = 'text';
@@ -52,7 +78,7 @@
             inputV.addEventListener('change', (e) => {
                 const value = e.target.value;
                 if (!value) {
-                    params.splice(params.indexOf(param), 1);
+                    param.value = ''
                 } else {
                     param.value = value;
                 }
@@ -82,11 +108,12 @@
 
             ul.appendChild(li)
         }
+        vscode.postMessage({ type: 'updateParams', value: params });
         vscode.setState({ params: params});
     }
 
     function addParam() {
-        params.push({ key: 'Key', value: 'Value' });
+        params.push({ group: '', key: 'Key', value: 'Value' });
         updateParamList(params);
     }
 
