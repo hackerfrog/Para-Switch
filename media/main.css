@@ -1,6 +1,6 @@
 body {
 	background-color: transparent;
-	padding-top: 44px;
+	padding-top: 54px;
 }
 a {
 	text-decoration: none;
@@ -12,8 +12,13 @@ a {
 	width: 100%;
 	background-color: var(--vscode-menu-background);
 }
+.fixed-bar > input {
+	min-height: 22px;
+	margin-bottom: 2px;
+}
 .fixed-bar > button {
 	padding: 4px;
+	font-weight: 700;
 }
 .header {
 	display: flex;
@@ -26,31 +31,38 @@ a {
 	font-weight: 700;
 	font-size: 11px;
 }
+.header .icon-filler {
+	width: 146px;
+}
 ul.param-list {
 	padding: 4px;
 }
 li.param-entry {
 	display: flex;
 	flex-wrap: nowrap;
-	margin-bottom: 2px;
+	margin-bottom: 4px;
 }
 li.param-entry > input.inputG,
 li.param-entry > input.inputK,
 li.param-entry > input.inputV {
+	min-height: 22px;
 	width: 100%;
-	margin-right: 2px;
+	margin-right: 4px;
 }
 li.param-entry > button {
 	background-color: transparent;
-	width: 20px;
+	width: 22px;
 	font-weight: normal;
 	color: var(--vscode-foreground);
+	transition: color 0.25s;
 }
 button.replaceBtn:hover {
-	background-color: rgba(255, 255, 255, 0.25);
+	color: rgb(27, 167, 27);
+	transition: color 0.25s;
 }
 button.clearBtn:hover {
-	background-color: rgb(220, 60, 60, 0.45);
+	color: rgb(197, 45, 45);
+	transition: color 0.25s;
 }
 .credit-footer {
 	width: 100%;

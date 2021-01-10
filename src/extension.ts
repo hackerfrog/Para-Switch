@@ -1,47 +1,70 @@
 import * as vscode from 'vscode';
-// import fs from 'fs';
 
-let params: never[] = []
+let params: {group:string, key:string, value:string}[] = []
+let importParams: {group:string, key:string, value:string}[] = []
 
 export function activate(context: vscode.ExtensionContext) {
 
-	// context.subscriptions.push(
-	// 	vscode.commands.registerCommand('para-switch.import', async function () {
-	// 		let  importFilePath = undefined
-	// 		await vscode.window.showOpenDialog({ filters: { "File Extensions": ["csv", "tsv"] } }).then(fileUri => {
-	// 			if (fileUri) {
-	// 				importFilePath = fileUri[0].fsPath;
-	// 			}
-	// 		});
-	// 		if (importFilePath) {
-	// 			fs.readFile(importFilePath, function (err, data) {
-	// 				console.log(err, data)
-	// 			});
-	// 			// const importFileUri = vscode.Uri.file(importFilePath)
-	// 			// console.log(importFileUri)
-	// 			// if (importFilePath.endsWith(".csv")) {
-
-	// 			// } else if (importFilePath.endsWith(".tsv")) {
-
-	// 			// }
-	// 		}
-	// 	})
-	// );
-	// context.subscriptions.push(
-	// 	vscode.commands.registerCommand('para-switch.export2csv', async function () {
-	// 		let data = "";
-	// 		for (const param of params) {
-	// 			data = data + param.key + "," + param.value + "\n"
-	// 		}
-	// 		console.log(data)
-	// 		// const folderUri = vscode.workspace.workspaceFolders[0].uri;
-	// 		// const fileUri = folderUri.with({ path: posix.join(folderUri.path, 'para-switch.csv') });
-
-	// 		// await vscode.workspace.fs.writeFile(fileUri, writeData);
-	// 	})
-	// );
-
 	const kvProvider = new ParaSwitchKVProvider(context.extensionUri);
+
+	context.subscriptions.push(
+		vscode.commands.registerCommand('para-switch.import', async function () {
+			const importAs = await vscode.window.showQuickPick(['CSV', 'TSV']);
+			let sepChar = ',';
+			let newLineChar = '\n';
+			if (importAs) {
+				importParams = [];
+				if (importAs == 'CSV') {
+					sepChar = ',';
+					newLineChar = '\n';
+				} else if (importAs == 'TSV') {
+					sepChar = '\t';
+					newLineChar = '\n';
+				}
+				let  importFilePath = undefined
+				await vscode.window.showOpenDialog({ filters: { "File Extensions": ["*"] } }).then(fileUri => {
+					if (fileUri) {
+						importFilePath = fileUri[0].fsPath;
+					}
+				});
+				if (importFilePath) {
+					const importDoc = vscode.workspace.openTextDocument(vscode.Uri.file(importFilePath));
+					const importText = (await importDoc).getText();
+					const paramArray = importText.split(newLineChar);
+					for (const paramLine of paramArray) {
+						if (paramLine != '') {
+							const paramItems = paramLine.split(sepChar);
+							importParams.push({
+								group: paramItems[0],
+								key: paramItems[1],
+								value: paramItems[2]
+							});
+						}
+					}
+					kvProvider.updateParams();
+				}
+			}
+		})
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('para-switch.export', async function () {
+			const exportAs = await vscode.window.showQuickPick(['CSV', 'TSV']);
+			if (exportAs) {
+				let data = "";
+				if (exportAs == 'CSV') {
+					for (const param of params) {
+						data = data + param.group + ","  + param.key + "," + param.value + "\n"
+					}
+				} else if (exportAs == 'TSV') {
+					for (const param of params) {
+						data = data + param.group + "\t"  + param.key + "\t" + param.value + "\n"
+					}
+				}
+				const exportDoc = await vscode.workspace.openTextDocument({content: data})
+				;(await exportDoc).save()
+			}
+		})
+	);
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(ParaSwitchKVProvider.viewType, kvProvider)
 	);
@@ -78,11 +101,13 @@ class ParaSwitchKVProvider implements vscode.WebviewViewProvider {
 	public static readonly viewType = 'para-switch.kv-explorer';
 
 	private _view ?: vscode.WebviewView;
+	private _context ?: vscode.WebviewViewResolveContext;
 
 	constructor(private readonly _extensionUri: vscode.Uri,) {}
 
 	public resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext, _token: vscode.CancellationToken,) {
 		this._view = webviewView;
+		this._context = context;
 
 		webviewView.webview.options = {
 			// Allow scripts in the webview
@@ -148,12 +173,20 @@ class ParaSwitchKVProvider implements vscode.WebviewViewProvider {
 		}
 	}
 
+	public updateParams() {
+		if (this._view) {
+			this._view.webview.postMessage({ type: 'updateParams', value: importParams })
+		}
+	}
+
 	private _getHtmlForWebview(webview: vscode.Webview) {
 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'ps-main.js'));
 
 		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css'));
 		const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
 		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.css'));
+		const styleCodiconUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'node_modules', 'vscode-codicons', 'dist', 'codicon.css'));
+		const fontCodiconUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'node_modules', 'vscode-codicons', 'dist', 'codicon.ttf'));
 
 		// Use a nonce to only allow a specific script to be run.
 		const nonce = getNonce();
@@ -166,11 +199,12 @@ class ParaSwitchKVProvider implements vscode.WebviewViewProvider {
 					Use a content security policy to only allow loading images from https or from our extension directory,
 					and only allow scripts that have a specific nonce.
 				-->
-				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; font-src ${fontCodiconUri}; style-src ${webview.cspSource} ${styleCodiconUri}; script-src 'nonce-${nonce}';">
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
 				<link href="${styleResetUri}" rel="stylesheet">
 				<link href="${styleVSCodeUri}" rel="stylesheet">
 				<link href="${styleMainUri}" rel="stylesheet">
+				<link href="${styleCodiconUri}" rel="stylesheet" />
 
 				<title>Para Switch</title>
 			</head>
@@ -183,6 +217,7 @@ class ParaSwitchKVProvider implements vscode.WebviewViewProvider {
 					<div>Group</div>
 					<div>Key</div>
 					<div>Value</div>
+					<div class='icon-filler'></div>
 				</div>
 				<ul class="param-list"></ul>
 				<div class='credit-footer'>Made with <span title="love and chocolate">"💘 + 🍫"<span> by <a href="http://github.com/hackerfrog" title="Lovepreet Singh">@hackerfrog</a></div>

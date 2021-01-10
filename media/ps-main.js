@@ -30,6 +30,11 @@
                 params = [];
                 updateParamList(params);
                 break;
+            } case 'updateParams': {
+                for (const param of message.value) {
+                    params.push(param);
+                }
+                updateParamList(params);
             }
         }
     });
@@ -45,6 +50,7 @@
             inputG.className = 'inputG';
             inputG.type = 'text';
             inputG.value = param.group
+            inputG.placeholder = 'unGrouped'
             inputG.addEventListener('change', (e) => {
                 const value = e.target.value;
                 if(!value) {
@@ -88,7 +94,7 @@
 
             const replaceBtn = document.createElement('button');
             replaceBtn.className = 'replaceBtn';
-            replaceBtn.innerHTML = 'R';
+            replaceBtn.innerHTML = '<i class="codicon codicon-replace"></i>';
             replaceBtn.title = 'Replace';
             replaceBtn.addEventListener('click', (e) => {
                 const param_s = [param];
@@ -98,7 +104,7 @@
 
             const clearBtn = document.createElement('button');
             clearBtn.className = 'clearBtn';
-            clearBtn.innerHTML = 'D';
+            clearBtn.innerHTML = '<i class="codicon codicon-trash"></i>';
             clearBtn.title = 'Delete';
             clearBtn.addEventListener('click', (e) => {
                 params.splice(params.indexOf(param), 1);

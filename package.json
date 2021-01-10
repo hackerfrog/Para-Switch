@@ -2,7 +2,8 @@
 	"name": "para-switch",
 	"displayName": "Para Switch",
 	"description": "Key-Value storeage for quick replace",
-	"version": "0.0.2",
+	"version": "0.1.0",
+	"icon": "media/logo.png",
 	"publisher": "HackerFrog",
 	"engines": {
 		"vscode": "^1.52.0"
@@ -61,15 +62,16 @@
 				"category": "Para Switch",
 				"title": "Clear All",
 				"icon": "$(clear-all)"
-			},{
+			},
+			{
 				"command": "para-switch.import",
 				"category": "Para Switch",
 				"title": "Import"
 			},
 			{
-				"command": "para-switch.export2csv",
+				"command": "para-switch.export",
 				"category": "Para Switch",
-				"title": "Export as CSV"
+				"title": "Export"
 			},
 			{
 				"command": "para-switch.re-scan",
@@ -117,10 +119,17 @@
 		"glob": "^7.1.6",
 		"mocha": "^8.1.3",
 		"typescript": "^4.1.2",
-		"vscode-test": "^1.4.1"
+		"vscode-test": "^1.4.1",
+		"vscode-codicons": "0.0.13"
 	},
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/hackerfrog/Para-Switch"
+	},
+	"bugs": {
+		"url": "https://github.com/hackerfrog/Para-Switch/issues"
+	},
+	"dependencies": {
+		"vscode-codicons": "0.0.13"
 	}
 }
