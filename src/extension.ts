@@ -6,6 +6,7 @@ let importParams: {group:string, key:string, value:string}[] = []
 export function activate(context: vscode.ExtensionContext) {
 
 	const kvProvider = new ParaSwitchKVProvider(context.extensionUri);
+	const scannerProvider = new ScannerProvider(context.extensionUri);
 
 	context.subscriptions.push(
 		vscode.commands.registerCommand('para-switch.import', async function () {
@@ -84,17 +85,22 @@ export function activate(context: vscode.ExtensionContext) {
 		})
 	);
 
-	// const scannerProvider = new ScannerProvider(context.extensionUri);
-	// context.subscriptions.push(
-	// 	vscode.window.registerWebviewViewProvider(ScannerProvider.viewType, scannerProvider)
-	// );
-	// context.subscriptions.push(
-	// 	vscode.commands.registerCommand('para-switch.re-scan', () => {
-	// 		scannerProvider.reScan();
-	// 	})
-	// );
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(ScannerProvider.viewType, scannerProvider)
+	);
+	context.subscriptions.push(
+		vscode.commands.registerCommand('para-switch.re-scan', () => {
+			scannerProvider.reScan();
+		})
+	);
 
-	// console.log('Extenstion is ready to use!')
+	context.subscriptions.push(
+		vscode.window.onDidChangeActiveTextEditor(editor => {
+			if (editor) {
+				scannerProvider.reScan();
+			}
+		})
+	);
 }
 
 class ParaSwitchKVProvider implements vscode.WebviewViewProvider {
@@ -208,7 +214,7 @@ class ParaSwitchKVProvider implements vscode.WebviewViewProvider {
 
 				<title>Para Switch</title>
 			</head>
-			<body>
+			<body class="kv-explorer">
 				<div class="fixed-bar">
 					<input type="text" id="groupValue" placeholder="Group Value" />
 					<button class="replaceByGroup">Replace by Group</button>
@@ -227,81 +233,82 @@ class ParaSwitchKVProvider implements vscode.WebviewViewProvider {
 	}
 }
 
-// class ScannerProvider implements vscode.WebviewViewProvider{
-// 	public static readonly viewType = 'para-switch.scanner';
+class ScannerProvider implements vscode.WebviewViewProvider{
+	public static readonly viewType = 'para-switch.scanner';
 
-// 	private _view ?: vscode.WebviewView;
+	private _view ?: vscode.WebviewView;
 
-// 	constructor(private readonly _extensionUri: vscode.Uri,) {}
+	constructor(private readonly _extensionUri: vscode.Uri,) {}
 
-// 	public resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext, _token: vscode.CancellationToken,) {
-// 		this._view = webviewView;
+	public resolveWebviewView(webviewView: vscode.WebviewView, context: vscode.WebviewViewResolveContext, _token: vscode.CancellationToken,) {
+		this._view = webviewView;
 
-// 		webviewView.webview.options = {
-// 			// Allow scripts in the webview
-// 			enableScripts: true,
+		webviewView.webview.options = {
+			// Allow scripts in the webview
+			enableScripts: true,
 
-// 			localResourceRoots: [
-// 				this._extensionUri
-// 			]
-// 		};
+			localResourceRoots: [
+				this._extensionUri
+			]
+		};
 
-// 		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
+		webviewView.webview.html = this._getHtmlForWebview(webviewView.webview);
 
-// 		webviewView.webview.onDidReceiveMessage(async data => {
-// 			switch (data.type) {
-// 				case 'getParams': {
-// 					this._view?.webview.postMessage({ type: 'getParams', value: params })
-// 				}
-// 			}
-// 		});
-// 	}
+		webviewView.webview.onDidReceiveMessage(async data => {
+			switch (data.type) {
+				case 'getParams': {
+					this._view?.webview.postMessage({ type: 'getParams', value: params })
+				}
+			}
+		});
+	}
 
-// 	public reScan() {
-// 		if (this._view) {
-// 			this._view.show?.(true); // `show` is not implemented in 1.49 but is for 1.50 insiders
-// 			this._view.webview.postMessage({ type: 'reScan', value: params });
-// 		}
-// 	}
+	public reScan() {
+		if (this._view) {
+			this._view.show?.(true); // `show` is not implemented in 1.49 but is for 1.50 insiders
+			const text = vscode.window.activeTextEditor?.document.getText();
+			this._view.webview.postMessage({ type: 'reScan', value: params, editor: text });
+		}
+	}
 
-// 	private _getHtmlForWebview(webview: vscode.Webview) {
-// 		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'sn-main.js'));
+	private _getHtmlForWebview(webview: vscode.Webview) {
+		const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'sn-main.js'));
 
-// 		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css'));
-// 		const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
-// 		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.css'));
+		const styleResetUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'reset.css'));
+		const styleVSCodeUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'vscode.css'));
+		const styleMainUri = webview.asWebviewUri(vscode.Uri.joinPath(this._extensionUri, 'media', 'main.css'));
 
-// 		// Use a nonce to only allow a specific script to be run.
-// 		const nonce = getNonce();
+		// Use a nonce to only allow a specific script to be run.
+		const nonce = getNonce();
 
-// 		return `<!DOCTYPE html>
-// 			<html lang="en">
-// 			<head>
-// 				<meta charset="UTF-8">
-// 				<!--
-// 					Use a content security policy to only allow loading images from https or from our extension directory,
-// 					and only allow scripts that have a specific nonce.
-// 				-->
-// 				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
-// 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-// 				<link href="${styleResetUri}" rel="stylesheet">
-// 				<link href="${styleVSCodeUri}" rel="stylesheet">
-// 				<link href="${styleMainUri}" rel="stylesheet">
+		return `<!DOCTYPE html>
+			<html lang="en">
+			<head>
+				<meta charset="UTF-8">
+				<!--
+					Use a content security policy to only allow loading images from https or from our extension directory,
+					and only allow scripts that have a specific nonce.
+				-->
+				<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource}; script-src 'nonce-${nonce}';">
+				<meta name="viewport" content="width=device-width, initial-scale=1.0">
+				<link href="${styleResetUri}" rel="stylesheet">
+				<link href="${styleVSCodeUri}" rel="stylesheet">
+				<link href="${styleMainUri}" rel="stylesheet">
 
-// 				<title>Para Switch</title>
-// 			</head>
-// 			<body>
-// 				<div class='header'>
-// 					<div>Key</div>
-// 					<div>Count</div>
-// 				</div>
-// 				<ul class="scanner-list"></ul>
-// 				<div class='credit-footer'>Made with <span title="love and chocolate">"💘 + 🍫"<span> by <a href="http://github.com/hackerfrog" title="Lovepreet Singh">@hackerfrog</a></div>
-// 				<script nonce="${nonce}" src="${scriptUri}"></script>
-// 			</body>
-// 			</html>`;
-// 	}
-// }
+				<title>Para Switch</title>
+			</head>
+			<body>
+				<div class='header'>
+					<div>Key</div>
+					<div>Count</div>
+				</div>
+				<ul class="scanner-list"></ul>
+				<div class='credit-footer'>Made with <span title="love and chocolate">"💘 + 🍫"<span> by <a href="http://github.com/hackerfrog" title="Lovepreet Singh">@hackerfrog</a></div>
+				<script nonce="${nonce}" src="${scriptUri}"></script>
+			</body>
+			</html>`;
+	}
+}
 
 function getNonce() {
 	let text = '';

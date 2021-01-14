@@ -1,12 +1,14 @@
 body {
 	background-color: transparent;
+}
+body.kv-explorer {
 	padding-top: 54px;
 }
 a {
 	text-decoration: none;
 }
 .fixed-bar {
-	padding: 0 4px 8px 4px;
+	padding: 4px 4px 8px 4px;
 	position: fixed;
 	top: 0;
 	width: 100%;
@@ -34,10 +36,12 @@ a {
 .header .icon-filler {
 	width: 146px;
 }
-ul.param-list {
+ul.param-list,
+ul.scanner-list {
 	padding: 4px;
 }
-li.param-entry {
+li.param-entry,
+li.scanner-entry {
 	display: flex;
 	flex-wrap: nowrap;
 	margin-bottom: 4px;
@@ -55,6 +59,9 @@ li.param-entry > button {
 	font-weight: normal;
 	color: var(--vscode-foreground);
 	transition: color 0.25s;
+}
+li.scanner-entry > div {
+	width: 100%;
 }
 button.replaceBtn:hover {
 	color: rgb(27, 167, 27);

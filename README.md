@@ -17,3 +17,4 @@ This extension allows to key key-value pair of find-replace content which can we
 - Organize Key-Values in a Group
 - Replace only those all Key-Values present under given Group
 - Import and Export Key-Values to a file
+- Key Scanner

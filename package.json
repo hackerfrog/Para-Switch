@@ -2,7 +2,7 @@
 	"name": "para-switch",
 	"displayName": "Para Switch",
 	"description": "Key-Value storeage for quick replace",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"icon": "media/logo.png",
 	"publisher": "HackerFrog",
 	"engines": {
