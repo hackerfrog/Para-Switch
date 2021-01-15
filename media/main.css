@@ -71,6 +71,19 @@ button.clearBtn:hover {
 	color: rgb(197, 45, 45);
 	transition: color 0.25s;
 }
+.bubble {
+	display: inline-block;
+	background: var(--vscode-button-background);
+	color: #FFF;
+	min-width: 16px;
+	padding: 0 4px;
+	border-radius: 20px;
+	font-size: 10px;
+	line-height: 16px;
+	height: 16px;
+	margin-left: 4px;
+	text-align: center;
+}
 .credit-footer {
 	width: 100%;
 	text-align: center;

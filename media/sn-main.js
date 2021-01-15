@@ -37,7 +37,7 @@
                 textK.innerHTML = key
                 li.appendChild(textK)
                 const textC = document.createElement('div');
-                textC.innerHTML = count
+                textC.innerHTML = '<span class="bubble">' + count + '</span>'
                 li.appendChild(textC)
 
                 ul.appendChild(li)

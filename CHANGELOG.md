@@ -1,6 +1,10 @@
 # Release Notes
 <tt>
 
+## v1.0.1
+- <span style="color:#f7af3e;">[!]</span> Bug Fixes
+- <span style="color:#56c0e0;">[~]</span> Scanner Count Badge UI update
+
 ## v1.0.0
 - <span style="color:#f7af3e;">[!]</span> Bug Fixes
 - <span style="color:#9acc14;">[+]</span> Scanner Added
